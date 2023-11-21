@@ -32,7 +32,6 @@ public class MainTeleOp extends LinearOpMode {
     private final Gamepad previousGamepad1 = new Gamepad();
     private final Gamepad currentGamepad1 = new Gamepad();
 
-
     @Override
     public void runOpMode() throws InterruptedException {
         // Declare our motors
@@ -66,6 +65,8 @@ public class MainTeleOp extends LinearOpMode {
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         winchMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        armMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        clawServo.setDirection(Servo.Direction.REVERSE);
 
         int armPos = 0;
 
@@ -74,8 +75,6 @@ public class MainTeleOp extends LinearOpMode {
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         winchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        boolean extended = false;
 
         waitForStart();
 
@@ -108,9 +107,9 @@ public class MainTeleOp extends LinearOpMode {
 
 
             hand();
-            arm(armPos);
+            arm(armMotor.getCurrentPosition());
             winch();
-            drive(x, y, rx);
+            drive(x, y, rx, 0.7);
 
 
 
@@ -123,44 +122,49 @@ public class MainTeleOp extends LinearOpMode {
         }
     }
     public void hand(){
+        //CLAW
         if ((!previousGamepad1.a && currentGamepad1.a)
                 || (!previousGamepad1.left_stick_button && currentGamepad1.left_stick_button)) {
             targetClawOpen = !targetClawOpen;
-            targetClawPosition = targetClawOpen ? 0.0 : 0.3; //if the button was pressed down, toggle the claw
+            targetClawPosition = targetClawOpen ? 0.1 : 0.325; //if the button was pressed down, toggle the claw
         }
         clawServo.setPosition(targetClawPosition);
 
-        //later change to match the arm rotation
+        //WRIST
         if (!previousGamepad1.b && currentGamepad1.b) {
             targetWristUp = !targetWristUp;
-            targetWristPosition = targetWristUp ? 0.0 : 0.6; //if the button was pressed down, toggle the wrist
+            targetWristPosition = targetWristUp ? 0.3 : 0.47; //if the button was pressed down, toggle the wrist
         }
         wristServo.setPosition(targetWristPosition);
     }
     public void arm(int armPos){
-        int slidePower = 0;
+        int slidePower;
         double extendedPower = 1;
 
         if(slideMotor.getCurrentPosition()>250)
-            extendedPower = 1.0+(slideMotor.getCurrentPosition()/150);
+            extendedPower = 1.0;
 
         if(gamepad1.left_trigger>0){
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            armMotor.setPower(0.1*extendedPower);
+            if(armPos<200)
+                armMotor.setPower(-0.25*extendedPower);
+            else
+                armMotor.setPower(-0.15*extendedPower);
             armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }else if(gamepad1.left_bumper){
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if(armMotor.getCurrentPosition()>-150)
-                armMotor.setPower(-0.25*extendedPower);
+            if(armPos<150)
+                armMotor.setPower(0.25*extendedPower);
             else
-                armMotor.setPower(-0.3*extendedPower);
+                armMotor.setPower(0.3*extendedPower);
             armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }else{
+        }else {
             armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if(armPos<-75)
-                armMotor.setPower(-.1*extendedPower);
+            if (armPos>85)
+                armMotor.setPower(0.15 * extendedPower);
             else
-                armMotor.setPower(-0.05*extendedPower);
+                armMotor.setPower(0.05 * extendedPower);
+            armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
         //slide movement
@@ -171,13 +175,13 @@ public class MainTeleOp extends LinearOpMode {
         }else{
             slidePower = 0;
         }
-        slideMotor.setPower(.5*slidePower);
+        slideMotor.setPower(.35*slidePower);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
     public void winch(){
         if(!previousGamepad1.y && currentGamepad1.y){
             targetWinchDown = !targetWinchDown;
-            targetWinchPosition = targetWinchDown ? 0 : 12000; //if the button was pressed down, toggle the winch direction
+            targetWinchPosition = targetWinchDown ? 0 : 13500; //if the button was pressed down, toggle the winch direction
         }
         winchMotor.setTargetPosition(targetWinchPosition);
         winchMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -206,19 +210,20 @@ public class MainTeleOp extends LinearOpMode {
             winchMotor.setPower(0);
         }
     }
-    public void drive(double x, double y, double rx){
+    public void drive(double x, double y, double rx,double power){
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
+
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;
         double backLeftPower = (y - x + rx) / denominator;
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
-        frontLeftMotor.setPower(frontLeftPower);
-        backLeftMotor.setPower(backLeftPower);
-        frontRightMotor.setPower(frontRightPower);
-        backRightMotor.setPower(backRightPower);
+        frontLeftMotor.setPower(frontLeftPower * power);
+        backLeftMotor.setPower(backLeftPower * power);
+        frontRightMotor.setPower(frontRightPower * power);
+        backRightMotor.setPower(backRightPower * power);
     }
 }
