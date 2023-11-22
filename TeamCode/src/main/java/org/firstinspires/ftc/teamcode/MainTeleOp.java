@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import alex.Config;
+
 @TeleOp(name = "MainTeleOp", group = "Linear Opmode")
 //@Disabled
 
@@ -36,39 +38,37 @@ public class MainTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // Declare our motors
         // Make sure your ID's match your configuration
-        frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor"); //E port 2
-        backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor"); //E port 3
-        frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor"); //E port 0
-        backRightMotor = hardwareMap.dcMotor.get("backRightMotor"); //E port 1
 
-        winchMotor = hardwareMap.dcMotor.get("winchMotor"); //port 0
-        slideMotor = hardwareMap.dcMotor.get("slideMotor"); //port 1
-        armMotor = hardwareMap.dcMotor.get("armMotor"); //port 2
+        //motor config
+        frontLeftMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.frontLeftMotorName); //E port 2
+        backLeftMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.backLeftMotorName); //E port 3
+        frontRightMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.frontRightMotorName); //E port 0
+        backRightMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.backRightMotorName); //E port 1
 
-        wristServo = hardwareMap.servo.get("wristServo"); //servo port 0
-        clawServo = hardwareMap.servo.get("clawServo"); //servo port 1
+        winchMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.winchMotorName); //port 0
+        slideMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.slideMotorName); //port 1
+        armMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.armMotorName); //port 2
+
+        //servo config
+        wristServo = hardwareMap.servo.get(Config.Hardware.Servo.wristServoName); //servo port 0
+        clawServo = hardwareMap.servo.get(Config.Hardware.Servo.clawServoName); //servo port 1
+
+        //direction config
+        frontLeftMotor.setDirection(Config.Hardware.Motor.frontLeftMotorDirection);
+        frontRightMotor.setDirection(Config.Hardware.Motor.frontRightMotorDirection);
+        backLeftMotor.setDirection(Config.Hardware.Motor.backLeftMotorDirection);
+        backRightMotor.setDirection(Config.Hardware.Motor.backRightMotorDirection);
+
+        winchMotor.setDirection(Config.Hardware.Motor.winchMotorDirection);
+        winchMotor.setDirection(Config.Hardware.Motor.winchMotorDirection);
+        winchMotor.setDirection(Config.Hardware.Motor.winchMotorDirection);
 
 
+        //zero power behavior setup
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        winchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // Reverse the right side motors. This may be wrong for your setup.
-        // If your robot moves backwards when commanded to go forwards,
-        // reverse the left side instead.
-        // See the note about this earlier on this page.
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        winchMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        armMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        clawServo.setDirection(Servo.Direction.REVERSE);
-
-        int armPos = 0;
 
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         winchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -104,8 +104,6 @@ public class MainTeleOp extends LinearOpMode {
             wrist servo => gear ratio with arm rotation
              */
 
-
-
             hand();
             arm(armMotor.getCurrentPosition());
             winch();
@@ -126,20 +124,20 @@ public class MainTeleOp extends LinearOpMode {
         if ((!previousGamepad1.a && currentGamepad1.a)
                 || (!previousGamepad1.left_stick_button && currentGamepad1.left_stick_button)) {
             targetClawOpen = !targetClawOpen;
-            targetClawPosition = targetClawOpen ? 0.1 : 0.325; //if the button was pressed down, toggle the claw
+            targetClawPosition = targetClawOpen ? Config.Hardware.Servo.clawOpenPostion : Config.Hardware.Servo.clawClosedPosition; //if the button was pressed down, toggle the claw
         }
         clawServo.setPosition(targetClawPosition);
 
         //WRIST
         if (!previousGamepad1.b && currentGamepad1.b) {
             targetWristUp = !targetWristUp;
-            targetWristPosition = targetWristUp ? 0.3 : 0.47; //if the button was pressed down, toggle the wrist
+            targetWristPosition = targetWristUp ? Config.Hardware.Servo.clawTiltServoHigh : Config.Hardware.Servo.clawTiltServoLow; //if the button was pressed down, toggle the wrist
         }
         wristServo.setPosition(targetWristPosition);
     }
     public void arm(int armPos){
         int slidePower;
-        double extendedPower = 1;
+        double extendedPower = 1.0;
 
         if(slideMotor.getCurrentPosition()>250)
             extendedPower = 1.0;

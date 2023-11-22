@@ -1,20 +1,26 @@
 package alex;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class Config {
     public static class Hardware {
         public static class Motor {
-            public static String frontLeftMotorName = "leftFront";
-            public static DcMotor.Direction frontLeftMotorDirection = DcMotor.Direction.REVERSE;
-            public static String frontRightMotorName = "rightFront";
-            public static DcMotor.Direction frontRightMotorDirection = DcMotor.Direction.FORWARD;
-            public static String backLeftMotorName = "leftRear";
-            public static DcMotor.Direction backLeftMotorDirection = DcMotor.Direction.REVERSE;
-            public static String backRightMotorName = "rightRear";
-            public static DcMotor.Direction backRightMotorDirection = DcMotor.Direction.FORWARD;
-            public static String winchMotorName = "winch_motor";
-            public static DcMotor.Direction winchMotorDirection = DcMotor.Direction.FORWARD;
+            public static String frontLeftMotorName = "frontLeftMotor";
+            public static DcMotor.Direction frontLeftMotorDirection = DcMotor.Direction.FORWARD;
+            public static String frontRightMotorName = "frontRightMotor";
+            public static DcMotor.Direction frontRightMotorDirection = DcMotor.Direction.REVERSE;
+            public static String backLeftMotorName = "backLeftMotor";
+            public static DcMotor.Direction backLeftMotorDirection = DcMotor.Direction.FORWARD;
+            public static String backRightMotorName = "backRightMotor";
+            public static DcMotor.Direction backRightMotorDirection = DcMotor.Direction.REVERSE;
+            public static String winchMotorName = "winchMotor";
+            public static DcMotor.Direction winchMotorDirection = DcMotor.Direction.REVERSE;
+            public static String armMotorName = "armMotor";
+            public static DcMotor.Direction armMotorDirection = DcMotor.Direction.REVERSE;
+            public static String slideMotorName = "slideMotor";
+            public static DcMotor.Direction slideMotorDirection = DcMotor.Direction.FORWARD;
 
             public static double driveMotorPPR =  ((((1+(46d/17))) * (1+(46d/11))) * 28);
             public static double winchMotorPPR = ((((1+(46d/17))) * (1+(46d/11))) * 28);
@@ -23,14 +29,14 @@ public class Config {
         }
 
         public static class Servo {
-            public static String clawOpenServoName = "claw_open_servo";
+            public static String clawServoName = "clawServo";
             public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
-            static double clawOpenPostion = 0.68;
-            static double clawClosedPosition = 0.5;
-            static String clawTiltServoName = "claw_tilt_servo";
-            public static com.qualcomm.robotcore.hardware.Servo.Direction clawTiltServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
-            static double clawTiltServoLow = .55;
-            static double clawTiltServoHigh = .8;
+            public static double clawOpenPostion = 0.1;
+            public static double clawClosedPosition = 0.325;
+            public static String wristServoName = "wristServo";
+            public static com.qualcomm.robotcore.hardware.Servo.Direction clawTiltServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
+            public static double clawTiltServoLow = .47;
+            public static double clawTiltServoHigh = .3;
             static int clawAutoTiltHeight = (int) (1900/(100/17.5));
 
             public static String calibrateServoName = "calibrate_servo";
