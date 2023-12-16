@@ -13,7 +13,8 @@ public class Instruction {
         Rotate,
         Custom,
         Claw,
-        Lift,
+        Arm,
+        Slide,
         Sleep
     }
 
@@ -46,8 +47,11 @@ public class Instruction {
             case Rotate:
                 rotate();
                 break;
-            case Lift:
-                lift();
+            case Arm:
+                arm();
+                break;
+            case Slide:
+                slide();
                 break;
             case Claw:
                 claw();
@@ -97,17 +101,31 @@ public class Instruction {
 
     }
 
-    private void lift() {
+    private void arm() {
         int targetPosition = (int) parameters[0];
-        int liftSpeed = (int) parameters[1];
-        DcMotorEx winchMotor = (DcMotorEx) parameters[2];
+        double liftSpeed = (double) parameters[1];
+        DcMotorEx armMotor = (DcMotorEx) parameters[2];
 
         if (firstIteration) {
-            winchMotor.setVelocity(liftSpeed);
-            winchMotor.setTargetPosition(targetPosition);
+            armMotor.setPower(liftSpeed);
+            armMotor.setTargetPosition(targetPosition);
         }
 
-        if (Math.abs(winchMotor.getCurrentPosition() - targetPosition) < 10){
+        if (Math.abs(armMotor.getCurrentPosition() - targetPosition) < 10){
+            complete = true;
+        }
+    }
+    private void slide() {
+        int targetPosition = (int) parameters[0];
+        double liftSpeed = (double) parameters[1];
+        DcMotorEx slideMotor = (DcMotorEx) parameters[2];
+
+        if (firstIteration) {
+            slideMotor.setVelocity(liftSpeed);
+            slideMotor.setTargetPosition(targetPosition);
+        }
+
+        if (Math.abs(slideMotor.getCurrentPosition() - targetPosition) < 10){
             complete = true;
         }
     }

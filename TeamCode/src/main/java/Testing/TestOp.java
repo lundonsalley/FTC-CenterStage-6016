@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package Testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import alex.Config;
 
-@TeleOp(name = "MainTeleOp", group = "Linear Opmode")
+@TeleOp(name = "testOp", group = "Linear Opmode")
 //@Disabled
 
 
-public class MainTeleOp extends LinearOpMode {
+public class TestOp extends LinearOpMode {
 
     private DcMotor frontLeftMotor;
     private DcMotor frontRightMotor;
@@ -110,7 +110,14 @@ public class MainTeleOp extends LinearOpMode {
             hand();
             arm(armMotor.getCurrentPosition());
             winch();
-            drive(x, y, rx, 0.7);
+            //drive(x, y, rx, 0.7);
+
+            telemetry.addData("Arm", armMotor.getCurrentPosition());
+            telemetry.addData("Winch", winchMotor.getCurrentPosition());
+            telemetry.addData("Slide", slideMotor.getCurrentPosition());
+
+            telemetry.addData("Wrist", wristServo.getPosition());
+            telemetry.addData("Claw", clawServo.getPosition());
 
             //telemetry.addData("arm", armMotor.getCurrentPosition());
             telemetry.update();
@@ -125,10 +132,10 @@ public class MainTeleOp extends LinearOpMode {
     }
     public void hand(){
         //CLAW
-        if ((!previousGamepad1.a && currentGamepad1.a)
-                || (!previousGamepad1.left_stick_button && currentGamepad1.left_stick_button)) {
-            targetClawOpen = !targetClawOpen;
-            targetClawPosition = targetClawOpen ? Config.Hardware.Servo.clawOpenPosition : Config.Hardware.Servo.clawClosedPosition; //if the button was pressed down, toggle the claw
+        if (currentGamepad1.dpad_up) {
+            targetClawPosition += 0.01; //if the button was pressed down, toggle the claw
+        }else if(currentGamepad1.dpad_down){
+            targetClawPosition -= 0.01;
         }
         clawServo.setPosition(targetClawPosition);
 

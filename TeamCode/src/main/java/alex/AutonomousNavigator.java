@@ -1,6 +1,6 @@
 package alex;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -23,10 +23,10 @@ public class AutonomousNavigator {
         instructions.add(i);
     }
 
-    public void move(Position distance, DcMotor motor1, DcMotor motor2, DcMotor motor3, DcMotor motor4){
+    public void move(Position distance, DcMotorEx motor1, DcMotorEx motor2, DcMotorEx motor3, DcMotorEx motor4){
         addInstruction(new Instruction(Instruction.Code.Move, new Object[]{distance, null, motor1, motor2, motor3, motor4}));
     }
-    public void move(Position distance, Callable<Boolean> stopCondition, DcMotor motor1, DcMotor motor2, DcMotor motor3, DcMotor motor4){
+    public void move(Position distance, Callable<Boolean> stopCondition, DcMotorEx motor1, DcMotorEx motor2, DcMotorEx motor3, DcMotorEx motor4){
         addInstruction(new Instruction(Instruction.Code.Move, new Object[]{distance, stopCondition, motor1, motor2, motor3, motor4}));
     }
 
@@ -34,8 +34,11 @@ public class AutonomousNavigator {
         addInstruction(new Instruction(Instruction.Code.Claw, new Object[]{openPosition, clawServo, tiltPosition, tiltServo}));
     }
 
-    public void lift(int position, int speed, DcMotor winchMotor){
-        addInstruction(new Instruction(Instruction.Code.Lift, new Object[]{position, speed, winchMotor}));
+    public void arm(int position, double power, DcMotorEx armMotor){
+        addInstruction(new Instruction(Instruction.Code.Arm, new Object[]{position, power, armMotor}));
+    }
+    public void slide(int position, double power, DcMotorEx slideMotor){
+        addInstruction(new Instruction(Instruction.Code.Slide, new Object[]{position, power, slideMotor}));
     }
 
     public void sleep(long sleepTimeMilliseconds){
