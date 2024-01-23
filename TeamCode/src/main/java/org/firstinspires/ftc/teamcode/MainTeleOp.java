@@ -92,6 +92,8 @@ public class MainTeleOp extends LinearOpMode {
         elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         winchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         winchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //endregion
 
