@@ -1,6 +1,8 @@
 package alex;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Config {
@@ -18,9 +20,19 @@ public class Config {
             public static DcMotorEx.Direction winchMotorDirection = DcMotorEx.Direction.REVERSE;
             public static String armMotorName = "armMotor";
             public static DcMotorEx.Direction armMotorDirection = DcMotorEx.Direction.REVERSE;
-            public static String slideMotorName = "slideMotor";
-            public static DcMotorEx.Direction slideMotorDirection = DcMotorEx.Direction.FORWARD;
-
+            public static double armMoveVelo = 0.4;
+            public static int armStoredPos = 0;
+            public static int armUpPos = 750;
+            public static int armDownPos = 330;
+            public static String elbowMotorName = "elbowMotor";
+            public static DcMotorSimple.Direction elbowMotorDirection = DcMotorSimple.Direction.FORWARD;
+            public static double elbowMoveVelo = 0.2;
+            public static int elbowStoredPos = 25;
+            public static int elbowDownPos = 560;
+            public static int elbowUpPos = 450; //to imp
+            
+            
+            
             public static double driveMotorPPR =  ((((1+(46d/17))) * (1+(46d/11))) * 28);
             public static double winchMotorPPR = ((((1+(46d/17))) * (1+(46d/11))) * 28);
             public static double strafeMultiplier = 100d/89d;
@@ -28,17 +40,25 @@ public class Config {
         }
 
         public static class Servo {
-            public static String clawServoName = "clawServo";
-            public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
-            public static double clawOpenPosition = 0.0;
-            public static double clawClosedPosition = 0.13;
-            public static String wristServoName = "wristServo";
-            public static com.qualcomm.robotcore.hardware.Servo.Direction wristServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
-            public static double wristServoLow = 0.4;
-            public static double wristServoHigh = 0.3;
-            public static double wristServoZero = 0.0;
-            static int clawAutoTiltHeight = (int) (1900/(100/17.5));
-
+            public static String clawServoLName = "clawServoL"; //x
+            public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoLDirection = com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
+            public static double clawLOpenPosition = 0.0;
+            public static double clawLClosedPosition = 0.083;
+            public static double clawLFullClosedPosition = 0.2;
+            public static String clawServoRName = "clawServoR"; //b
+            public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoRDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
+            public static double clawROpenPosition = 0.0;
+            public static double clawRClosedPosition = 0.0838;
+            public static double clawRFullClosedPosition = 0.2;
+            public static String leftLimitServoName = "leftLimitServo";
+            public static com.qualcomm.robotcore.hardware.Servo.Direction leftLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
+            public static double leftLimitStowed = 0.0;
+            public static double leftLimitDeployed = 0.0; //to imp
+            public static String rightLimitServoName = "rightLimitServo";
+            public static com.qualcomm.robotcore.hardware.Servo.Direction rightLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
+            public static double rightLimitStowed = 0.0;
+            public static double rightLimitDeployed = 0.0; //to imp
+            
         }
 
         public static class Wheel {
@@ -60,9 +80,7 @@ public class Config {
         }
 
         public static class Motor {
-            public static double verticalCoefficient = 1d;
-            public static double horizontalCoefficient = 1d;
-            public static double rotationCoefficient = 1d;
+
 
         }
     }

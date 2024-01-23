@@ -3,9 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 import alex.Config;
 
@@ -15,43 +16,55 @@ import alex.Config;
 
 public class MainTeleOp extends LinearOpMode {
 
+    //region VARIABLE DECLARATIONS
     private DcMotor frontLeftMotor;
     private DcMotor frontRightMotor;
     private DcMotor backLeftMotor;
     private DcMotor backRightMotor;
     private DcMotor winchMotor;
-    private DcMotor slideMotor;
     private DcMotor armMotor;
-    private Servo wristServo;
-    private Servo clawServo;
-    private boolean targetClawOpen = true;
-    private boolean targetWristUp = true;
+    private DcMotor elbowMotor;
+    private Servo clawServoL;
+    private Servo clawServoR;
+    private Servo leftLimitServo;
+    private Servo rightLimitServo;
+    private boolean targetClawROpen = false;
+    private boolean targetClawLOpen = false;
+    private boolean armUp = false;
+    private boolean fullArmStored = true;
     private boolean targetWinchDown = true;
-    private double targetClawPosition = 0;
-    private double targetWristPosition = 0;
+    private double targetClawLPosition = Config.Hardware.Servo.clawLFullClosedPosition;
+    private double targetClawRPosition = Config.Hardware.Servo.clawRFullClosedPosition;
+    private double targetElbowPosition = 0;
     private int targetWinchPosition = 0;
 
     private final Gamepad previousGamepad1 = new Gamepad();
     private final Gamepad currentGamepad1 = new Gamepad();
+    //endregion
 
     @Override
     public void runOpMode() {
         // Declare our motors
         // Make sure your ID's match your configuration
 
+        //region CONFIG
         //motor config
-        frontLeftMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.frontLeftMotorName); //E port 2
-        backLeftMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.backLeftMotorName); //E port 3
-        frontRightMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.frontRightMotorName); //E port 0
-        backRightMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.backRightMotorName); //E port 1
+        frontLeftMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.frontLeftMotorName);
+        backLeftMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.backLeftMotorName);
+        frontRightMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.frontRightMotorName);
+        backRightMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.backRightMotorName);
 
-        winchMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.winchMotorName); //port 0
-        slideMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.slideMotorName); //port 1
-        armMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.armMotorName); //port 2
+        winchMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.winchMotorName);
+        armMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.armMotorName);
+        elbowMotor = hardwareMap.dcMotor.get(Config.Hardware.Motor.elbowMotorName);
 
         //servo config
-        wristServo = hardwareMap.servo.get(Config.Hardware.Servo.wristServoName); //servo port 0
-        clawServo = hardwareMap.servo.get(Config.Hardware.Servo.clawServoName); //servo port 1
+        clawServoL = hardwareMap.servo.get(Config.Hardware.Servo.clawServoLName);
+        clawServoR = hardwareMap.servo.get(Config.Hardware.Servo.clawServoRName);
+        //leftLimitServo = hardwareMap.servo.get(Config.Hardware.Servo.leftLimitServoName);
+        //rightLimitServo = hardwareMap.servo.get(Config.Hardware.Servo.rightLimitServoName);
+
+
 
         //direction config
         frontLeftMotor.setDirection(Config.Hardware.Motor.frontLeftMotorDirection);
@@ -61,10 +74,12 @@ public class MainTeleOp extends LinearOpMode {
 
         winchMotor.setDirection(Config.Hardware.Motor.winchMotorDirection);
         armMotor.setDirection(Config.Hardware.Motor.armMotorDirection);
-        slideMotor.setDirection(Config.Hardware.Motor.slideMotorDirection);
+        elbowMotor.setDirection(Config.Hardware.Motor.elbowMotorDirection);
 
-        clawServo.setDirection(Config.Hardware.Servo.clawServoDirection);
-        wristServo.setDirection(Config.Hardware.Servo.wristServoDirection);
+        clawServoL.setDirection(Config.Hardware.Servo.clawServoLDirection);
+        clawServoR.setDirection(Config.Hardware.Servo.clawServoRDirection);
+        //leftLimitServo.setDirection(Config.Hardware.Servo.leftLimitServoDirection);
+        //rightLimitServo.setDirection(Config.Hardware.Servo.rightLimitServoDirection);
 
 
         //zero power behavior setup
@@ -74,10 +89,11 @@ public class MainTeleOp extends LinearOpMode {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         winchMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         winchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //endregion
 
         waitForStart();
 
@@ -95,24 +111,15 @@ public class MainTeleOp extends LinearOpMode {
             double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x;
 
-            /*
-            DRIVER NOTES
 
-            left stick click AND (a) => open and close claw
-
-            left trigger and left bumper => rotate arm up and down
-
-            right trigger and right bumper => extend and retract slide
-
-            wrist servo => gear ratio with arm rotation / (b)
-             */
+            telemetry.addData("armPos",armMotor.getCurrentPosition());
+            telemetry.addData("elbowPos",elbowMotor.getCurrentPosition());
 
             hand();
-            arm(armMotor.getCurrentPosition());
+            arm();
             winch();
             drive(x, y, rx, 0.7);
 
-            //telemetry.addData("arm", armMotor.getCurrentPosition());
             telemetry.update();
 
             //store gamepad for next cycle
@@ -125,73 +132,54 @@ public class MainTeleOp extends LinearOpMode {
     }
     public void hand(){
         //CLAW
-        if ((!previousGamepad1.a && currentGamepad1.a)
-                || (!previousGamepad1.left_stick_button && currentGamepad1.left_stick_button)) {
-            targetClawOpen = !targetClawOpen;
-            targetClawPosition = targetClawOpen ? Config.Hardware.Servo.clawOpenPosition : Config.Hardware.Servo.clawClosedPosition; //if the button was pressed down, toggle the claw
+        if ((!previousGamepad1.x && currentGamepad1.x) || (!previousGamepad1.left_stick_button && currentGamepad1.left_stick_button)) {
+            targetClawLOpen = !targetClawLOpen;
+            targetClawLPosition = targetClawLOpen ? Config.Hardware.Servo.clawLOpenPosition : Config.Hardware.Servo.clawLClosedPosition; //if the button was pressed down, toggle the claw
         }
-        clawServo.setPosition(targetClawPosition);
+        clawServoL.setPosition(targetClawLPosition);
 
-        //WRIST
-        if (!previousGamepad1.b && currentGamepad1.b) {
-            targetWristUp = !targetWristUp;
-            targetWristPosition = targetWristUp ? Config.Hardware.Servo.wristServoHigh : Config.Hardware.Servo.wristServoLow; //if the button was pressed down, toggle the wrist
+        if ((!previousGamepad1.b && currentGamepad1.b) || (!previousGamepad1.right_stick_button && currentGamepad1.right_stick_button)) {
+            targetClawROpen = !targetClawROpen;
+            targetClawRPosition = targetClawROpen ? Config.Hardware.Servo.clawROpenPosition : Config.Hardware.Servo.clawRClosedPosition; //if the button was pressed down, toggle the claw
         }
-        wristServo.setPosition(targetWristPosition);
+        clawServoR.setPosition(targetClawRPosition);
     }
-    public void arm(int armPos){
-        int slidePower;
-        double extendedPower = 1.0;
-
-        if(slideMotor.getCurrentPosition()>250)
-            extendedPower = 1.0;
-
-        if(gamepad1.left_trigger>0){
-            armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if(armPos<200)
-                armMotor.setPower(-0.25*extendedPower);
-            else
-                armMotor.setPower(-0.15*extendedPower);
-            armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }else if(gamepad1.left_bumper){
-            armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if(armPos<150)
-                armMotor.setPower(0.25*extendedPower);
-            else
-                armMotor.setPower(0.3*extendedPower);
-            armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }else {
-            armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if (armPos>85)
-                armMotor.setPower(0.15 * extendedPower);
-            else
-                armMotor.setPower(0.05 * extendedPower);
-            armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    public void arm() {
+        if ((!previousGamepad1.a && currentGamepad1.a)) {
+            if(fullArmStored){ //init position
+                fullArmStored = !fullArmStored;
+                armMotor.setTargetPosition(Config.Hardware.Motor.armUpPos);
+                elbowMotor.setTargetPosition(Config.Hardware.Motor.elbowUpPos);
+            }else {
+                armUp = !armUp;
+                if (armUp) {
+                    armMotor.setTargetPosition(Config.Hardware.Motor.armDownPos);
+                    elbowMotor.setTargetPosition(Config.Hardware.Motor.elbowDownPos);
+                }else{
+                    armMotor.setTargetPosition(Config.Hardware.Motor.armUpPos);
+                    elbowMotor.setTargetPosition(Config.Hardware.Motor.elbowUpPos);
+                }
+            }
+            armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            elbowMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armMotor.setPower(Config.Hardware.Motor.armMoveVelo);
+            elbowMotor.setPower(Config.Hardware.Motor.elbowMoveVelo);
         }
 
-        //slide movement
-        if(gamepad1.right_bumper){
-            slidePower = 1;
-        }else if(gamepad1.right_trigger>0){
-            slidePower = -1;
-        }else{
-            slidePower = 0;
+        if ((!previousGamepad1.y && currentGamepad1.y)) { //store arm
+            if (fullArmStored){
+                return;
+            }
+            fullArmStored = !fullArmStored;
+            armMotor.setTargetPosition(Config.Hardware.Motor.armStoredPos);
+            elbowMotor.setTargetPosition(Config.Hardware.Motor.elbowStoredPos);
+            armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            elbowMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armMotor.setPower(Config.Hardware.Motor.armMoveVelo/2);
+            elbowMotor.setPower(Config.Hardware.Motor.elbowMoveVelo/2);
         }
-        slideMotor.setPower(.35*slidePower);
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
     public void winch(){
-        if(!previousGamepad1.y && currentGamepad1.y){
-            targetWinchDown = !targetWinchDown;
-            targetWinchPosition = targetWinchDown ? 0 : 13500; //if the button was pressed down, toggle the winch direction
-        }
-        winchMotor.setTargetPosition(targetWinchPosition);
-        winchMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        if(targetWinchDown)
-            winchMotor.setPower(0.4);
-        else
-            winchMotor.setPower(1);
-
         //adjust and reset the winch
         if(gamepad1.dpad_up){
             winchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -212,7 +200,7 @@ public class MainTeleOp extends LinearOpMode {
             winchMotor.setPower(0);
         }
     }
-    public void drive(double x, double y, double rx,double power){
+    public void drive(double x, double y, double rx, double power){
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
