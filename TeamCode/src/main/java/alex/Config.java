@@ -17,7 +17,7 @@ public class Config {
             public static String backRightMotorName = "backRightMotor";
             public static DcMotorEx.Direction backRightMotorDirection = DcMotorEx.Direction.REVERSE;
             public static String winchMotorName = "winchMotor";
-            public static DcMotorEx.Direction winchMotorDirection = DcMotorEx.Direction.REVERSE;
+            public static DcMotorEx.Direction winchMotorDirection = DcMotorEx.Direction.FORWARD;
             public static String armMotorName = "armMotor";
             public static DcMotorEx.Direction armMotorDirection = DcMotorEx.Direction.REVERSE;
             public static double armMoveVelo = 0.4;
@@ -27,9 +27,9 @@ public class Config {
             public static String elbowMotorName = "elbowMotor";
             public static DcMotorSimple.Direction elbowMotorDirection = DcMotorSimple.Direction.FORWARD;
             public static double elbowMoveVelo = 0.2;
-            public static int elbowStoredPos = 25;
+            public static int elbowStoredPos = 0;
             public static int elbowDownPos = 560;
-            public static int elbowUpPos = 450; //to imp
+            public static int elbowUpPos = 440; //to imp
             
             
             
