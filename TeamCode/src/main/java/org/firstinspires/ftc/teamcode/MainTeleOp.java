@@ -32,10 +32,9 @@ public class MainTeleOp extends LinearOpMode {
     private boolean targetClawLOpen = false;
     private boolean armUp = false;
     private boolean fullArmStored = true;
-    private boolean targetWinchDown = true;
+    private boolean winchDown = true;
     private double targetClawLPosition = Config.Hardware.Servo.clawLFullClosedPosition;
     private double targetClawRPosition = Config.Hardware.Servo.clawRFullClosedPosition;
-    private double targetElbowPosition = 0;
     private int targetWinchPosition = 0;
 
     private final Gamepad previousGamepad1 = new Gamepad();
@@ -116,6 +115,7 @@ public class MainTeleOp extends LinearOpMode {
 
             telemetry.addData("armPos",armMotor.getCurrentPosition());
             telemetry.addData("elbowPos",elbowMotor.getCurrentPosition());
+            telemetry.addData("winchPos",winchMotor.getCurrentPosition());
 
             hand();
             arm();
@@ -183,22 +183,18 @@ public class MainTeleOp extends LinearOpMode {
     }
     public void winch(){
         //adjust and reset the winch
-        if(gamepad1.dpad_up){
+        if((gamepad1.dpad_up)&& (winchMotor.getCurrentPosition()<Config.Hardware.Motor.winchUpPos)){
             winchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            winchMotor.setPower(1);
+            winchMotor.setPower(Config.Hardware.Motor.winchVelo);
         }
-        if(previousGamepad1.dpad_up != currentGamepad1.dpad_up){
-            targetWinchDown = true;
-            winchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            winchMotor.setPower(0);
+        if((gamepad1.dpad_down)&&(winchMotor.getCurrentPosition()>Config.Hardware.Motor.winchDownPos)){
+                winchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                winchMotor.setPower(-Config.Hardware.Motor.winchVelo);
         }
-        if(gamepad1.dpad_down){
-            winchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            winchMotor.setPower(-1);
-        }
-        if(previousGamepad1.dpad_down != currentGamepad1.dpad_down){
-            targetWinchDown = true;
-            winchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if((previousGamepad1.dpad_up != currentGamepad1.dpad_up)
+                ||(previousGamepad1.dpad_down != currentGamepad1.dpad_down)
+                ||(winchMotor.getCurrentPosition()>Config.Hardware.Motor.winchUpPos)
+                ||(winchMotor.getCurrentPosition()<Config.Hardware.Motor.winchDownPos)){
             winchMotor.setPower(0);
         }
     }

@@ -18,6 +18,9 @@ public class Config {
             public static DcMotorEx.Direction backRightMotorDirection = DcMotorEx.Direction.REVERSE;
             public static String winchMotorName = "winchMotor";
             public static DcMotorEx.Direction winchMotorDirection = DcMotorEx.Direction.REVERSE;
+            public static int winchUpPos = 8500;
+            public static int winchDownPos = 0;
+            public static double winchVelo = 1.0;
             public static String armMotorName = "armMotor";
             public static DcMotorEx.Direction armMotorDirection = DcMotorEx.Direction.REVERSE;
             public static double armMoveVelo = 0.4;
