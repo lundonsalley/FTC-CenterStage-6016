@@ -45,14 +45,14 @@ public class Config {
         public static class Servo {
             public static String clawServoLName = "clawServoL"; //x
             public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoLDirection = com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
-            public static double clawLOpenPosition = 0.0;
-            public static double clawLClosedPosition = 0.083;
-            public static double clawLFullClosedPosition = 0.2;
+            public static double clawLOpenPosition = 0.025;
+            public static double clawLClosedPosition = 0.2;
+            public static double clawLFullClosedPosition = 0.26;
             public static String clawServoRName = "clawServoR"; //b
             public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoRDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
-            public static double clawROpenPosition = 0.0;
-            public static double clawRClosedPosition = 0.0838;
-            public static double clawRFullClosedPosition = 0.2;
+            public static double clawROpenPosition = 0.025;
+            public static double clawRClosedPosition = 0.2;
+            public static double clawRFullClosedPosition = 0.26;
             public static String leftLimitServoName = "leftLimitServo";
             public static com.qualcomm.robotcore.hardware.Servo.Direction leftLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
             public static double leftLimitStowed = 0.0;
