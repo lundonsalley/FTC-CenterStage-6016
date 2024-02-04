@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import alex.Config;
 
@@ -28,13 +28,17 @@ public class MainTeleOp extends LinearOpMode {
     private Servo clawServoR;
     private Servo leftLimitServo;
     private Servo rightLimitServo;
+    private TouchSensor leftWhisker;
+    private TouchSensor rightWhisker;
+    private boolean rightTouched = false;
+    private boolean leftTouched = false;
     private boolean targetClawROpen = false;
     private boolean targetClawLOpen = false;
     private boolean armUp = false;
     private boolean fullArmStored = true;
     private boolean winchDown = true;
-    private double targetClawLPosition = Config.Hardware.Servo.clawLFullClosedPosition;
-    private double targetClawRPosition = Config.Hardware.Servo.clawRFullClosedPosition;
+    private double targetClawLPosition = Config.Hardware.Servo.clawLClosedPosition;
+    private double targetClawRPosition = Config.Hardware.Servo.clawRClosedPosition;
     private int targetWinchPosition = 0;
 
     private final Gamepad previousGamepad1 = new Gamepad();
@@ -60,10 +64,8 @@ public class MainTeleOp extends LinearOpMode {
         //servo config
         clawServoL = hardwareMap.servo.get(Config.Hardware.Servo.clawServoLName);
         clawServoR = hardwareMap.servo.get(Config.Hardware.Servo.clawServoRName);
-        //leftLimitServo = hardwareMap.servo.get(Config.Hardware.Servo.leftLimitServoName);
-        //rightLimitServo = hardwareMap.servo.get(Config.Hardware.Servo.rightLimitServoName);
-
-
+        leftLimitServo = hardwareMap.servo.get(Config.Hardware.Servo.leftLimitServoName);
+        rightLimitServo = hardwareMap.servo.get(Config.Hardware.Servo.rightLimitServoName);
 
         //direction config
         frontLeftMotor.setDirection(Config.Hardware.Motor.frontLeftMotorDirection);
@@ -77,8 +79,8 @@ public class MainTeleOp extends LinearOpMode {
 
         clawServoL.setDirection(Config.Hardware.Servo.clawServoLDirection);
         clawServoR.setDirection(Config.Hardware.Servo.clawServoRDirection);
-        //leftLimitServo.setDirection(Config.Hardware.Servo.leftLimitServoDirection);
-        //rightLimitServo.setDirection(Config.Hardware.Servo.rightLimitServoDirection);
+        leftLimitServo.setDirection(Config.Hardware.Servo.leftLimitServoDirection);
+        rightLimitServo.setDirection(Config.Hardware.Servo.rightLimitServoDirection);
 
 
         //zero power behavior setup
@@ -94,6 +96,11 @@ public class MainTeleOp extends LinearOpMode {
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         winchMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftLimitServo.setPosition(Config.Hardware.Servo.leftLimitStowed);
+        rightLimitServo.setPosition(Config.Hardware.Servo.rightLimitStowed);
+        leftWhisker = hardwareMap.touchSensor.get(Config.Hardware.Digital.whiskerLName);
+        rightWhisker = hardwareMap.touchSensor.get(Config.Hardware.Digital.whiskerRName);
         //endregion
 
         waitForStart();
@@ -116,10 +123,21 @@ public class MainTeleOp extends LinearOpMode {
             telemetry.addData("armPos",armMotor.getCurrentPosition());
             telemetry.addData("elbowPos",elbowMotor.getCurrentPosition());
             telemetry.addData("winchPos",winchMotor.getCurrentPosition());
+            if (!leftWhisker.isPressed()){
+                leftTouched = true;
+            }
+            if (!rightWhisker.isPressed()){
+                rightTouched = true;
+            }
+            telemetry.addData("front left",frontLeftMotor.getCurrentPosition());
+            telemetry.addData("front right",frontRightMotor.getCurrentPosition());
+            telemetry.addData("back left",backLeftMotor.getCurrentPosition());
+            telemetry.addData("back right",backRightMotor.getCurrentPosition());
 
             hand();
             arm();
             winch();
+            test();
             drive(x, y, rx, 0.7);
 
             telemetry.update();
@@ -130,6 +148,17 @@ public class MainTeleOp extends LinearOpMode {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+    public void test(){
+        if (!previousGamepad1.right_bumper && currentGamepad1.right_bumper){
+            rightLimitServo.setPosition(Config.Hardware.Servo.rightLimitStowed);
+            leftLimitServo.setPosition(Config.Hardware.Servo.leftLimitStowed);
+        }
+
+        if (!previousGamepad1.left_bumper && currentGamepad1.left_bumper){
+            rightLimitServo.setPosition(Config.Hardware.Servo.rightLimitDeployed);
+            leftLimitServo.setPosition(Config.Hardware.Servo.leftLimitDeployed);
         }
     }
     public void hand(){

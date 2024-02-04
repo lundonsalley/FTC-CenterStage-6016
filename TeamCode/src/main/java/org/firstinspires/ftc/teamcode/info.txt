@@ -1,0 +1,12 @@
+robot size: 17 inches
+robot back wheel to center of pixel on the ground: 25.5 inches (51/24)
+robot arm size (minus the normal size): 17/24
+
+purple pixel in left claw (goes on the spike marker)
+yellow pixel in right claw (goes on board)
+
+
+
+
+notes:
+to test: encoder rotation for a 90deg turn

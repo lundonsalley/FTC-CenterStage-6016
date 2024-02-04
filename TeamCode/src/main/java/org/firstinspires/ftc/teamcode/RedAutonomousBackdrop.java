@@ -25,11 +25,11 @@ import alex.AutonomousNavigator;
 import alex.Config;
 import alex.PositionCalculator;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Blue Autonomous Backdrop", group = "Linear Opmode")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Red Autonomous Backdrop", group = "Linear Opmode")
 //@Disabled
 
 
-public class BlueAutonomousBackdrop extends LinearOpMode {
+public class RedAutonomousBackdrop extends LinearOpMode {
 
     //region VARIABLE DECLARATIONS
     private final ElapsedTime runtime = new ElapsedTime();
@@ -157,14 +157,14 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
             runtime.reset();
             setupNav();
         }
-        
+
         while(opModeIsActive()) {
             telemetry.addData("runtime", runtime.seconds());
             telemetry.update();
             if(setup) {
                 autoNav.run();
                 whiskerDetection();
-                    if(markerPos != MarkerPositions.CENTER || runtime.seconds()>4){
+                if(markerPos != MarkerPositions.CENTER || runtime.seconds()>4){
                     configAutoNav();
                     setup = false;
                 }
@@ -181,12 +181,17 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
         whisker("stowed");
         switch (markerPos){
             case LEFT:
-                //move backwards so the claw is aligned with the spike marker
-                autoNav.move(new Position(DistanceUnit.METER,0,-14.5*convert,0, 500),
+                //store arm to avoid the metal bar
+                autoNav.arm(Config.Hardware.Motor.armStoredPos, Config.Hardware.Motor.elbowStoredPos,
+                        Config.Hardware.Motor.armMoveVelo/2, armMotor, elbowMotor);
+                //rotate 90deg left
+                autoNav.rotate(Math.PI/2,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
+                //move backwards so the pixel is aligned with the spike marker
+                autoNav.move(new Position(DistanceUnit.METER,0,-5.0*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
-                //move left to center pixel on spike marker
-                autoNav.move(new Position(DistanceUnit.METER,-9.3*convert,0,0, 500),
-                        frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
+                //move arm down
+                autoNav.arm(Config.Hardware.Motor.armDownPos, Config.Hardware.Motor.elbowDownPos,
+                        Config.Hardware.Motor.armMoveVelo/2, armMotor, elbowMotor);
                 //drop purple pixel on the spike marker
                 autoNav.claw(Config.Hardware.Servo.clawLOpenPosition,clawServoL);
                 //wait for the pixel to be placed
@@ -194,12 +199,13 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
                 //set arm to up position
                 autoNav.arm(Config.Hardware.Motor.armUpPos, Config.Hardware.Motor.elbowUpPos,
                         Config.Hardware.Motor.armMoveVelo, armMotor, elbowMotor);
-                //rotate 90deg left
-                autoNav.rotate(Math.PI/2,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
+                //rotate 180deg right
+                autoNav.rotate(-Math.PI,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
+                //set arm to up position
+                autoNav.arm(Config.Hardware.Motor.armUpPos, Config.Hardware.Motor.elbowUpPos,
+                        Config.Hardware.Motor.armMoveVelo, armMotor, elbowMotor);
                 //move to board
-                autoNav.move(new Position(DistanceUnit.METER,7.7*convert,0,0, 500),
-                        frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
-                autoNav.move(new Position(DistanceUnit.METER,0,34.5*convert,0, 500),
+                autoNav.move(new Position(DistanceUnit.METER,0,35.0*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //drop pixel
                 autoNav.claw(Config.Hardware.Servo.clawROpenPosition,clawServoR);
@@ -215,7 +221,7 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
                 autoNav.arm(Config.Hardware.Motor.armStoredPos,Config.Hardware.Motor.elbowStoredPos,
                         Config.Hardware.Motor.armMoveVelo/2,armMotor,elbowMotor);
                 //move to the wall
-                autoNav.move(new Position(DistanceUnit.METER,-24.5*convert,0,0, 500),
+                autoNav.move(new Position(DistanceUnit.METER,28.5*convert,0,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //park
                 autoNav.move(new Position(DistanceUnit.METER,0,16.5*convert,0, 500),
@@ -232,10 +238,10 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
                 //set arm to up position
                 autoNav.arm(Config.Hardware.Motor.armUpPos, Config.Hardware.Motor.elbowUpPos,
                         Config.Hardware.Motor.armMoveVelo, armMotor, elbowMotor);
-                //rotate 90deg left (idk if it works?)
-                autoNav.rotate(Math.PI/2,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
+                //rotate 90deg right
+                autoNav.rotate(-Math.PI/2,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //move to board
-                autoNav.move(new Position(DistanceUnit.METER,0,42.5*convert,0, 500),
+                autoNav.move(new Position(DistanceUnit.METER,-3.0*convert,41.5*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //drop pixel
                 autoNav.claw(Config.Hardware.Servo.clawROpenPosition,clawServoR);
@@ -251,38 +257,32 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
                 autoNav.arm(Config.Hardware.Motor.armStoredPos,Config.Hardware.Motor.elbowStoredPos,
                         Config.Hardware.Motor.armMoveVelo/2,armMotor,elbowMotor);
                 //move to the wall
-                autoNav.move(new Position(DistanceUnit.METER,-24.5*convert,0,0, 500),
+                autoNav.move(new Position(DistanceUnit.METER,24.5*convert,0,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //park
                 autoNav.move(new Position(DistanceUnit.METER,0,16.5*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 break;
             case RIGHT:
-                //store arm to avoid the metal bar
-                autoNav.arm(Config.Hardware.Motor.armStoredPos, Config.Hardware.Motor.elbowStoredPos,
-                        Config.Hardware.Motor.armMoveVelo/2, armMotor, elbowMotor);
-                //rotate 90deg right
-                autoNav.rotate(-Math.PI/2,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
-                //move backwards so the pixel is aligned with the spike marker
-                autoNav.move(new Position(DistanceUnit.METER,0,-8.0*convert,0, 500),
+                //move backwards so the claw is aligned with the spike marker
+                autoNav.move(new Position(DistanceUnit.METER,0,-14.5*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
-                //move arm down
-                autoNav.arm(Config.Hardware.Motor.armDownPos, Config.Hardware.Motor.elbowDownPos,
-                        Config.Hardware.Motor.armMoveVelo/2, armMotor, elbowMotor);
+                //move right to center pixel on spike marker
+                autoNav.move(new Position(DistanceUnit.METER,14.8*convert,0,0, 500),
+                        frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //drop purple pixel on the spike marker
                 autoNav.claw(Config.Hardware.Servo.clawLOpenPosition,clawServoL);
                 //wait for the pixel to be placed
                 autoNav.sleep(750);
-                //set arm to stored position
-                autoNav.arm(Config.Hardware.Motor.armStoredPos, Config.Hardware.Motor.elbowStoredPos,
-                        Config.Hardware.Motor.armMoveVelo/2, armMotor, elbowMotor);
-                //rotate 180deg left
-                autoNav.rotate(Math.PI,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //set arm to up position
                 autoNav.arm(Config.Hardware.Motor.armUpPos, Config.Hardware.Motor.elbowUpPos,
                         Config.Hardware.Motor.armMoveVelo, armMotor, elbowMotor);
+                //rotate 90deg left
+                autoNav.rotate(-Math.PI/2,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //move to board
-                autoNav.move(new Position(DistanceUnit.METER,0,34.5*convert,0, 500),
+                autoNav.move(new Position(DistanceUnit.METER,-7.7*convert,0,0, 500),
+                        frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
+                autoNav.move(new Position(DistanceUnit.METER,-5.0*convert,29.5*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //drop pixel
                 autoNav.claw(Config.Hardware.Servo.clawROpenPosition,clawServoR);
@@ -298,12 +298,13 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
                 autoNav.arm(Config.Hardware.Motor.armStoredPos,Config.Hardware.Motor.elbowStoredPos,
                         Config.Hardware.Motor.armMoveVelo/2,armMotor,elbowMotor);
                 //move to the wall
-                autoNav.move(new Position(DistanceUnit.METER,-26.5*convert,0,0, 500),
+                autoNav.move(new Position(DistanceUnit.METER,24.5*convert,0,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //park
                 autoNav.move(new Position(DistanceUnit.METER,0,16.5*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 break;
+
         }
         /*
             distances:

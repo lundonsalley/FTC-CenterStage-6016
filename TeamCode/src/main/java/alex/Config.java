@@ -18,6 +18,7 @@ public class Config {
             public static DcMotorEx.Direction backRightMotorDirection = DcMotorEx.Direction.REVERSE;
             public static String winchMotorName = "winchMotor";
             public static DcMotorEx.Direction winchMotorDirection = DcMotorEx.Direction.REVERSE;
+            public static double moveVelo = 0.7;
             public static int winchUpPos = 8500;
             public static int winchDownPos = 0;
             public static double winchVelo = 1.0;
@@ -34,21 +35,23 @@ public class Config {
             public static int elbowDownPos = 560;
             public static int elbowUpPos = 440; //to imp
             
-            
+            ////////////////////////////////////////////////////////////
             
             public static double driveMotorPPR =  ((((1+(46d/17))) * (1+(46d/11))) * 28);
             public static double winchMotorPPR = ((((1+(46d/17))) * (1+(46d/11))) * 28);
             public static double strafeMultiplier = 100d/89d;
+            public static double rotateMultiplierLeft = -1050.0 / (Math.PI/2);
+            public static double rotateMultiplierRight = 1000.0 / (Math.PI/2);
 
         }
 
         public static class Servo {
-            public static String clawServoLName = "clawServoL"; //x
+            public static String clawServoLName = "clawServoL";
             public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoLDirection = com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
             public static double clawLOpenPosition = 0.025;
             public static double clawLClosedPosition = 0.2;
             public static double clawLFullClosedPosition = 0.26;
-            public static String clawServoRName = "clawServoR"; //b
+            public static String clawServoRName = "clawServoR";
             public static com.qualcomm.robotcore.hardware.Servo.Direction clawServoRDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
             public static double clawROpenPosition = 0.025;
             public static double clawRClosedPosition = 0.2;
@@ -56,12 +59,18 @@ public class Config {
             public static String leftLimitServoName = "leftLimitServo";
             public static com.qualcomm.robotcore.hardware.Servo.Direction leftLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
             public static double leftLimitStowed = 0.0;
-            public static double leftLimitDeployed = 0.0; //to imp
+            public static double leftLimitDeployed = 0.385; //to imp
             public static String rightLimitServoName = "rightLimitServo";
-            public static com.qualcomm.robotcore.hardware.Servo.Direction rightLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
+            public static com.qualcomm.robotcore.hardware.Servo.Direction rightLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
             public static double rightLimitStowed = 0.0;
-            public static double rightLimitDeployed = 0.0; //to imp
+            public static double rightLimitDeployed = 0.33; //to imp
             
+        }
+
+        public static class Digital{
+            public static String whiskerLName = "leftWhisker";
+            public static String whiskerRName = "rightWhisker";
+
         }
 
         public static class Wheel {

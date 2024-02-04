@@ -1,8 +1,10 @@
 package alex;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 import java.util.concurrent.Callable;
@@ -89,29 +91,33 @@ public class Instruction {
     private void claw() {
         double targetOpenPosition = (double) parameters[0];
         Servo clawServo = (Servo) parameters[1];
-        double targetTiltPosition = (double) parameters[2];
-        Servo clawTiltServo = (Servo) parameters[3];
 
 
         if (firstIteration){
             clawServo.setPosition(targetOpenPosition);
-            clawTiltServo.setPosition(targetTiltPosition);
             complete = true;
         }
 
     }
 
     private void arm() {
-        int targetPosition = (int) parameters[0];
-        double liftSpeed = (double) parameters[1];
-        DcMotorEx armMotor = (DcMotorEx) parameters[2];
+        int targetArmPosition = (int) parameters[0];
+        int targetElbowPosition = (int) parameters[1];
+        double liftSpeed = (double) parameters[2];
+        DcMotorEx armMotor = (DcMotorEx) parameters[3];
+        DcMotorEx elbowMotor = (DcMotorEx) parameters[4];
 
         if (firstIteration) {
             armMotor.setPower(liftSpeed);
-            armMotor.setTargetPosition(targetPosition);
+            elbowMotor.setPower(liftSpeed);
+            armMotor.setTargetPosition(targetArmPosition);
+            elbowMotor.setTargetPosition(targetElbowPosition);
         }
 
-        if (Math.abs(armMotor.getCurrentPosition() - targetPosition) < 10){
+        if (Math.abs(armMotor.getCurrentPosition() - targetArmPosition) < 10){
+            complete = true;
+        }
+        if (Math.abs(armMotor.getCurrentPosition() - targetElbowPosition) < 10){
             complete = true;
         }
     }
@@ -131,6 +137,52 @@ public class Instruction {
     }
 
     private void rotate() {
+        double radians = (double) parameters[0];
+        DcMotor frontLeftMotor = (DcMotor) parameters[1];
+        DcMotor frontRightMotor = (DcMotor) parameters[2];
+        DcMotor backLeftMotor = (DcMotor) parameters[3];
+        DcMotor backRightMotor = (DcMotor) parameters[4];
+
+        int buffer = 250;
+
+        if (firstIteration){
+            //calculate and set new position for wheel encoders
+
+            int frontLeftEncoder = frontLeftMotor.getCurrentPosition();
+            int frontRightEncoder = frontRightMotor.getCurrentPosition();
+            int backLeftEncoder = backLeftMotor.getCurrentPosition();
+            int backRightEncoder = backRightMotor.getCurrentPosition();
+
+            frontLeftEncoder += radians * Config.Hardware.Motor.rotateMultiplierLeft;
+            frontRightEncoder +=  radians * Config.Hardware.Motor.rotateMultiplierRight;
+            backLeftEncoder +=  radians * Config.Hardware.Motor.rotateMultiplierLeft;
+            backRightEncoder +=  radians * Config.Hardware.Motor.rotateMultiplierRight;
+
+            frontLeftMotor.setTargetPosition(frontLeftEncoder);
+            frontRightMotor.setTargetPosition(frontRightEncoder);
+            backLeftMotor.setTargetPosition(backLeftEncoder);
+            backRightMotor.setTargetPosition(backRightEncoder);
+
+            frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            frontLeftMotor.setPower(Config.Hardware.Motor.moveVelo);
+            frontRightMotor.setPower(Config.Hardware.Motor.moveVelo);
+            backLeftMotor.setPower(Config.Hardware.Motor.moveVelo);
+            backRightMotor.setPower(Config.Hardware.Motor.moveVelo);
+
+        }
+
+        if (!(frontLeftMotor.isBusy() || frontRightMotor.isBusy() || backLeftMotor.isBusy() || backRightMotor.isBusy())){
+            frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition());
+            frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition());
+            backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition());
+            backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition());
+            this.complete = true;
+        }
+
 
     }
 

@@ -55,6 +55,8 @@ public class PositionCalculator {
             case Horizontal:
                 position.x += motorRotationToDistance(frontLeftMotor.getCurrentPosition()-lastPos);
                 break;
+            case Rotational:
+
         }
         lastPos = frontLeftMotor.getCurrentPosition();
     }

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.BlueAutonomousBackdrop;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -30,12 +31,12 @@ public class AutonomousNavigator {
         addInstruction(new Instruction(Instruction.Code.Move, new Object[]{distance, stopCondition, motor1, motor2, motor3, motor4}));
     }
 
-    public void claw(double openPosition, Servo clawServo, double tiltPosition, Servo tiltServo){
-        addInstruction(new Instruction(Instruction.Code.Claw, new Object[]{openPosition, clawServo, tiltPosition, tiltServo}));
+    public void claw(double openPosition, Servo clawServo){
+        addInstruction(new Instruction(Instruction.Code.Claw, new Object[]{openPosition, clawServo}));
     }
 
-    public void arm(int position, double power, DcMotorEx armMotor){
-        addInstruction(new Instruction(Instruction.Code.Arm, new Object[]{position, power, armMotor}));
+    public void arm(int armPosition, int elbowPosition, double power, DcMotorEx armMotor, DcMotorEx elbowMotor){
+        addInstruction(new Instruction(Instruction.Code.Arm, new Object[]{armPosition, elbowPosition, power, armMotor, elbowMotor}));
     }
     public void slide(int position, double power, DcMotorEx slideMotor){
         addInstruction(new Instruction(Instruction.Code.Slide, new Object[]{position, power, slideMotor}));
@@ -49,8 +50,8 @@ public class AutonomousNavigator {
         addInstruction(new Instruction(Instruction.Code.Sleep, new Object[]{sleepTimeMilliseconds, stopCondition}));
     }
 
-    public void rotate(){
-        throw new RuntimeException("Rotation Not yet implemented");
+    public void rotate(double radians, DcMotorEx frontL, DcMotorEx frontR, DcMotorEx backL, DcMotorEx backR){
+        addInstruction(new Instruction(Instruction.Code.Rotate, new Object[]{radians, frontL, frontR, backL, backR}));
     }
 
     public void custom(Runnable code){
@@ -63,6 +64,7 @@ public class AutonomousNavigator {
 
     public void run(){
         for (Instruction i : instructions) {
+
             if (!i.isComplete()){
                 try {
                     i.execute(posCalc);
@@ -73,6 +75,8 @@ public class AutonomousNavigator {
             }
         }
     }
+
+
 
 
 
