@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import java.security.spec.ECField;
+
 import alex.Config;
 
 @TeleOp(name = "MainTeleOp", group = "Linear Opmode")
@@ -166,14 +168,16 @@ public class MainTeleOp extends LinearOpMode {
         if ((!previousGamepad1.x && currentGamepad1.x) || (!previousGamepad1.left_stick_button && currentGamepad1.left_stick_button)) {
             targetClawLOpen = !targetClawLOpen;
             targetClawLPosition = targetClawLOpen ? Config.Hardware.Servo.clawLOpenPosition : Config.Hardware.Servo.clawLClosedPosition; //if the button was pressed down, toggle the claw
+            clawServoL.setPosition(targetClawLPosition);
         }
-        clawServoL.setPosition(targetClawLPosition);
+
 
         if ((!previousGamepad1.b && currentGamepad1.b) || (!previousGamepad1.right_stick_button && currentGamepad1.right_stick_button)) {
             targetClawROpen = !targetClawROpen;
             targetClawRPosition = targetClawROpen ? Config.Hardware.Servo.clawROpenPosition : Config.Hardware.Servo.clawRClosedPosition; //if the button was pressed down, toggle the claw
+            clawServoR.setPosition(targetClawRPosition);
         }
-        clawServoR.setPosition(targetClawRPosition);
+
     }
     public void arm() {
         if ((!previousGamepad1.a && currentGamepad1.a)) {
@@ -208,6 +212,9 @@ public class MainTeleOp extends LinearOpMode {
             elbowMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             armMotor.setPower(Config.Hardware.Motor.armMoveVelo/2);
             elbowMotor.setPower(Config.Hardware.Motor.elbowMoveVelo/2);
+
+            clawServoR.setPosition(Config.Hardware.Servo.clawRClosedPosition);
+            clawServoL.setPosition(Config.Hardware.Servo.clawLClosedPosition);
         }
     }
     public void winch(){
