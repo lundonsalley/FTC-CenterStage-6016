@@ -139,7 +139,7 @@ public class MainTeleOp extends LinearOpMode {
             hand();
             arm();
             winch();
-            test();
+            //test();
             drive(x, y, rx, 0.7);
 
             telemetry.update();
@@ -210,8 +210,8 @@ public class MainTeleOp extends LinearOpMode {
             elbowMotor.setTargetPosition(Config.Hardware.Motor.elbowStoredPos);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elbowMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            armMotor.setPower(Config.Hardware.Motor.armMoveVelo/2);
-            elbowMotor.setPower(Config.Hardware.Motor.elbowMoveVelo/2);
+            armMotor.setPower((2*Config.Hardware.Motor.armMoveVelo)/3);
+            elbowMotor.setPower((2*Config.Hardware.Motor.elbowMoveVelo)/3);
 
             clawServoR.setPosition(Config.Hardware.Servo.clawRClosedPosition);
             clawServoL.setPosition(Config.Hardware.Servo.clawLClosedPosition);
@@ -234,10 +234,14 @@ public class MainTeleOp extends LinearOpMode {
             winchMotor.setPower(0);
         }
     }
-    public void drive(double x, double y, double rx, double power){
+    public void drive(double x, double y, double rx, double _power){
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
+        double power = _power;
+        if(armUp){
+            power = (2*power)/3;
+        }
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (y + x + rx) / denominator;

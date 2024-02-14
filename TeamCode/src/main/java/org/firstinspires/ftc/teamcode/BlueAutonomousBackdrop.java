@@ -163,6 +163,9 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
             telemetry.update();
             if(setup) {
                 autoNav.run();
+                if(runtime.seconds()>1.5){
+                    whisker("deployed");
+                }
                 whiskerDetection();
                     if(markerPos != MarkerPositions.CENTER || runtime.seconds()>4){
                     configAutoNav();
@@ -197,7 +200,7 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
                 //rotate 90deg left
                 autoNav.rotate(Math.PI/2,frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 //move to board
-                autoNav.move(new Position(DistanceUnit.METER,7.7*convert,0,0, 500),
+                autoNav.move(new Position(DistanceUnit.METER,6.3*convert,0,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
                 autoNav.move(new Position(DistanceUnit.METER,0,34.5*convert,0, 500),
                         frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
@@ -332,7 +335,6 @@ public class BlueAutonomousBackdrop extends LinearOpMode {
 
     public void setupNav(){ //arm down and move to center (front wheels touching the spike marker)
         arm("down");
-        whisker("deployed");
         autoNav.move(new Position(DistanceUnit.METER,0,29.0*convert,0, 500),
                 frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
     }
