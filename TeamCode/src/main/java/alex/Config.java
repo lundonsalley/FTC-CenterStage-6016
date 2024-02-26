@@ -27,12 +27,14 @@ public class Config {
             public static double armMoveVelo = 0.4;
             public static int armStoredPos = 0;
             public static int armUpPos = 750;
+            public static int armLowPos = 257;//imp
             public static int armDownPos = 330;
             public static String elbowMotorName = "elbowMotor";
             public static DcMotorSimple.Direction elbowMotorDirection = DcMotorSimple.Direction.FORWARD;
             public static double elbowMoveVelo = 0.2;
             public static int elbowStoredPos = 0;
             public static int elbowDownPos = 560;
+            public static int elbowLowPos = 375;//imp
             public static int elbowUpPos = 440; //to imp
             
             ////////////////////////////////////////////////////////////
@@ -57,11 +59,15 @@ public class Config {
             public static String leftLimitServoName = "leftLimitServo";
             public static com.qualcomm.robotcore.hardware.Servo.Direction leftLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
             public static double leftLimitStowed = 0.0;
-            public static double leftLimitDeployed = 0.385; //to imp
+            public static double leftLimitDeployed = 0.385;
             public static String rightLimitServoName = "rightLimitServo";
             public static com.qualcomm.robotcore.hardware.Servo.Direction rightLimitServoDirection = com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
             public static double rightLimitStowed = 0.0;
-            public static double rightLimitDeployed = 0.33; //to imp
+            public static double rightLimitDeployed = 0.33;
+            public static String launcherName = "launcher";
+            public static com.qualcomm.robotcore.hardware.Servo.Direction launcherDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
+            public static double launcherStored = 0.0;
+            public static double launcherDeployed = 0.25;
             
         }
 
