@@ -68,6 +68,8 @@ public class Config {
         public static class Digital{
             public static String whiskerLName = "leftWhisker";
             public static String whiskerRName = "rightWhisker";
+            public static String distanceName = "distance";
+            public static double minDistance = 4.0; //6.5
 
         }
 

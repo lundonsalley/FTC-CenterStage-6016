@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.security.spec.ECField;
 
@@ -32,17 +33,16 @@ public class MainTeleOp extends LinearOpMode {
     private Servo rightLimitServo;
     private TouchSensor leftWhisker;
     private TouchSensor rightWhisker;
+    private DistanceSensor distance;
     private boolean rightTouched = false;
     private boolean leftTouched = false;
     private boolean targetClawROpen = false;
     private boolean targetClawLOpen = false;
     private boolean armUp = false;
     private boolean fullArmStored = true;
-    private boolean winchDown = true;
+    private boolean boardLeftSide = true;
     private double targetClawLPosition = Config.Hardware.Servo.clawLClosedPosition;
     private double targetClawRPosition = Config.Hardware.Servo.clawRClosedPosition;
-    private int targetWinchPosition = 0;
-
     private final Gamepad previousGamepad1 = new Gamepad();
     private final Gamepad currentGamepad1 = new Gamepad();
     //endregion
@@ -103,6 +103,7 @@ public class MainTeleOp extends LinearOpMode {
         rightLimitServo.setPosition(Config.Hardware.Servo.rightLimitStowed);
         leftWhisker = hardwareMap.touchSensor.get(Config.Hardware.Digital.whiskerLName);
         rightWhisker = hardwareMap.touchSensor.get(Config.Hardware.Digital.whiskerRName);
+        distance = hardwareMap.get(DistanceSensor.class, Config.Hardware.Digital.distanceName);
         //endregion
 
         waitForStart();
@@ -125,21 +126,18 @@ public class MainTeleOp extends LinearOpMode {
             telemetry.addData("armPos",armMotor.getCurrentPosition());
             telemetry.addData("elbowPos",elbowMotor.getCurrentPosition());
             telemetry.addData("winchPos",winchMotor.getCurrentPosition());
+            telemetry.addData("boardLeftSide",boardLeftSide);
             if (!leftWhisker.isPressed()){
                 leftTouched = true;
             }
             if (!rightWhisker.isPressed()){
                 rightTouched = true;
             }
-            telemetry.addData("front left",frontLeftMotor.getCurrentPosition());
-            telemetry.addData("front right",frontRightMotor.getCurrentPosition());
-            telemetry.addData("back left",backLeftMotor.getCurrentPosition());
-            telemetry.addData("back right",backRightMotor.getCurrentPosition());
+            telemetry.addData("distance",distance.getDistance(DistanceUnit.INCH));
 
             hand();
             arm();
             winch();
-            //test();
             drive(x, y, rx, 0.7);
 
             telemetry.update();
@@ -150,17 +148,6 @@ public class MainTeleOp extends LinearOpMode {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-    public void test(){
-        if (!previousGamepad1.right_bumper && currentGamepad1.right_bumper){
-            rightLimitServo.setPosition(Config.Hardware.Servo.rightLimitStowed);
-            leftLimitServo.setPosition(Config.Hardware.Servo.leftLimitStowed);
-        }
-
-        if (!previousGamepad1.left_bumper && currentGamepad1.left_bumper){
-            rightLimitServo.setPosition(Config.Hardware.Servo.rightLimitDeployed);
-            leftLimitServo.setPosition(Config.Hardware.Servo.leftLimitDeployed);
         }
     }
     public void hand(){
@@ -241,6 +228,13 @@ public class MainTeleOp extends LinearOpMode {
         double power = _power;
         if(armUp){
             power = (2*power)/3;
+        }
+        if(gamepad1.left_bumper) {
+            if (y > 0.5 && distance.getDistance(DistanceUnit.INCH) < Config.Hardware.Digital.minDistance + ((y + 1.5) * (y + 1.5))) {
+                y = 0;
+            } else if (y > 0 && distance.getDistance(DistanceUnit.INCH) < Config.Hardware.Digital.minDistance) {
+                y = 0;
+            }
         }
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
