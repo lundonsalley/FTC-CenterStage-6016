@@ -91,6 +91,7 @@ public class MainTeleOp extends LinearOpMode {
         leftLimitServo.setDirection(Config.Hardware.Servo.leftLimitServoDirection);
         rightLimitServo.setDirection(Config.Hardware.Servo.rightLimitServoDirection);
         launcher.setDirection(Config.Hardware.Servo.launcherDirection);
+        launcher.setPosition(Config.Hardware.Servo.launcherStored);
 
 
         //zero power behavior setup
@@ -141,6 +142,7 @@ public class MainTeleOp extends LinearOpMode {
                 rightTouched = true;
             }
             telemetry.addData("distance",distance.getDistance(DistanceUnit.INCH));
+            telemetry.addData("launcher",launcher.getPosition());
 
             hand();
             arm();
@@ -233,8 +235,8 @@ public class MainTeleOp extends LinearOpMode {
     public void launcher(){
         if ((!previousGamepad1.right_bumper && currentGamepad1.right_bumper)) {
             launcherStored =!launcherStored;
-            double targetLaunchPosition = launcherStored ? Config.Hardware.Servo.launcherDeployed : Config.Hardware.Servo.launcherStored; //if the button was pressed down, toggle the claw
-            clawServoL.setPosition(targetLaunchPosition);
+            double targetLaunchPosition = !launcherStored ? Config.Hardware.Servo.launcherDeployed : Config.Hardware.Servo.launcherStored; //if the button was pressed down, toggle the claw
+            launcher.setPosition(targetLaunchPosition);
         }
     }
     public void drive(double x, double y, double rx, double _power){

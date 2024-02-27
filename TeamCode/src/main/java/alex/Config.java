@@ -67,7 +67,7 @@ public class Config {
             public static String launcherName = "launcher";
             public static com.qualcomm.robotcore.hardware.Servo.Direction launcherDirection = com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD;
             public static double launcherStored = 0.0;
-            public static double launcherDeployed = 0.25;
+            public static double launcherDeployed = 0.2;
             
         }
 
