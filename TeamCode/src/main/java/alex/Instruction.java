@@ -3,7 +3,9 @@ package alex;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
@@ -136,7 +138,7 @@ public class Instruction {
         }
     }
 
-    private void rotate() {
+    private void rotate_() {
         double radians = (double) parameters[0];
         DcMotor frontLeftMotor = (DcMotor) parameters[1];
         DcMotor frontRightMotor = (DcMotor) parameters[2];
@@ -183,6 +185,55 @@ public class Instruction {
             this.complete = true;
         }
 
+
+    }
+
+    private void rotate() {
+        int degrees = (int) parameters[0];
+        GyroSensor gyro = (GyroSensor) parameters[1];
+        DcMotor frontLeftMotor = (DcMotor) parameters[2];
+        DcMotor frontRightMotor = (DcMotor) parameters[3];
+        DcMotor backLeftMotor = (DcMotor) parameters[4];
+        DcMotor backRightMotor = (DcMotor) parameters[5];
+
+        int dir = 1;
+        double err = Config.Hardware.Motor.moveVelo * 15;
+
+        if (firstIteration){
+            if (degrees > 0)
+                dir = -1;
+            degrees = gyro.getHeading() - degrees;
+            if(degrees < 0)
+                degrees += 360;
+            if(degrees > 359)
+                degrees -= 360;
+            Config.Software.degrees = degrees;
+
+
+            frontLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            frontLeftMotor.setPower(.5 * -dir);
+            frontRightMotor.setPower(.5 * dir);
+            backLeftMotor.setPower(.5 * -dir);
+            backRightMotor.setPower(.5 * dir);
+        }
+
+        if (Config.Software.withinErr(gyro.getHeading(), Config.Software.degrees, (int) err)){
+            frontLeftMotor.setPower(0);
+            frontRightMotor.setPower(0);
+            backLeftMotor.setPower(0);
+            backRightMotor.setPower(0);
+
+            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            this.complete = true;
+        }
 
     }
 
@@ -237,6 +288,4 @@ public class Instruction {
             this.complete = true;
         }
     }
-
-
 }

@@ -2,11 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CompassSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.Gyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.security.spec.ECField;
@@ -20,6 +25,7 @@ import alex.Config;
 public class MainTeleOp extends LinearOpMode {
 
     //region VARIABLE DECLARATIONS
+    private GyroSensor gyro;
     private DcMotor frontLeftMotor;
     private DcMotor frontRightMotor;
     private DcMotor backLeftMotor;
@@ -34,7 +40,7 @@ public class MainTeleOp extends LinearOpMode {
     private Servo rightLimitServo;
     private TouchSensor leftWhisker;
     private TouchSensor rightWhisker;
-    private DistanceSensor distance;
+//    private DistanceSensor distance;
     private boolean rightTouched = false;
     private boolean leftTouched = false;
     private boolean targetClawROpen = false;
@@ -112,7 +118,8 @@ public class MainTeleOp extends LinearOpMode {
         rightLimitServo.setPosition(Config.Hardware.Servo.rightLimitStowed);
         leftWhisker = hardwareMap.touchSensor.get(Config.Hardware.Digital.whiskerLName);
         rightWhisker = hardwareMap.touchSensor.get(Config.Hardware.Digital.whiskerRName);
-        distance = hardwareMap.get(DistanceSensor.class, Config.Hardware.Digital.distanceName);
+
+        gyro = hardwareMap.gyroSensor.get(Config.Hardware.Digital.gyroName);
         //endregion
 
         waitForStart();
@@ -134,22 +141,19 @@ public class MainTeleOp extends LinearOpMode {
 
             telemetry.addData("armPos",armMotor.getCurrentPosition());
             telemetry.addData("elbowPos",elbowMotor.getCurrentPosition());
-            telemetry.addData("winchPos",winchMotor.getCurrentPosition());
-            if (!leftWhisker.isPressed()){
-                leftTouched = true;
+            telemetry.addData("gyro", gyro.getHeading());
+
+            if ((!previousGamepad1.ps && currentGamepad1.ps)){
+                gyro.calibrate();
             }
-            if (!rightWhisker.isPressed()){
-                rightTouched = true;
-            }
-            telemetry.addData("distance",distance.getDistance(DistanceUnit.INCH));
-            telemetry.addData("launcher",launcher.getPosition());
+
+//            telemetry.addData("distance",distance.getDistance(DistanceUnit.INCH));
 
             hand();
             arm();
             winch();
             launcher();
-            drive(x, y, rx, 0.7);
-
+            drive(x, y, rx, Config.Hardware.Motor.moveVelo);
             telemetry.update();
 
             //store gamepad for next cycle
@@ -244,22 +248,28 @@ public class MainTeleOp extends LinearOpMode {
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
         double power = _power;
+
         if(armPos == ArmPositions.HIGH){
             power = (2*power)/3;
         }
-        if(gamepad1.left_bumper) {
-            if (y > 0.5 && distance.getDistance(DistanceUnit.INCH) < Config.Hardware.Digital.minDistance + ((y + 1.5) * (y + 1.5))) {
-                y = 0;
-            } else if (y > 0 && distance.getDistance(DistanceUnit.INCH) < Config.Hardware.Digital.minDistance) {
-                y = 0;
-            }
+
+        if(gamepad1.left_trigger > 0.0) {
+            power *= -1;
+            rx *= -1;
         }
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double frontLeftPower = (y + x + rx) / denominator;
-        double backLeftPower = (y - x + rx) / denominator;
-        double frontRightPower = (y - x - rx) / denominator;
-        double backRightPower = (y + x - rx) / denominator;
+        double frontLeftPower = Math.pow((y + x + rx), 1)/ denominator;
+        double backLeftPower = Math.pow((y - x + rx), 1) / denominator;
+        double frontRightPower = Math.pow((y - x - rx), 1)/ denominator;
+        double backRightPower = Math.pow((y + x - rx), 1) / denominator;
+
+        if(frontLeftPower == 0.0 && frontRightPower == 0.0 && backLeftPower == 0.0 && backRightPower == 0.0){
+            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
 
         frontLeftMotor.setPower(frontLeftPower * power);
         backLeftMotor.setPower(backLeftPower * power);

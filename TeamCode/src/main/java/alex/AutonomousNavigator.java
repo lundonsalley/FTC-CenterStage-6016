@@ -1,6 +1,7 @@
 package alex;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -52,6 +53,10 @@ public class AutonomousNavigator {
 
     public void rotate(double radians, DcMotorEx frontL, DcMotorEx frontR, DcMotorEx backL, DcMotorEx backR){
         addInstruction(new Instruction(Instruction.Code.Rotate, new Object[]{radians, frontL, frontR, backL, backR}));
+    }
+
+    public void rotate(int degrees, GyroSensor gyro, DcMotorEx frontL, DcMotorEx frontR, DcMotorEx backL, DcMotorEx backR){
+        addInstruction(new Instruction(Instruction.Code.Rotate, new Object[]{degrees, gyro, frontL, frontR, backL, backR}));
     }
 
     public void custom(Runnable code){

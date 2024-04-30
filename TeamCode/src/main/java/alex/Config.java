@@ -18,7 +18,7 @@ public class Config {
             public static DcMotorEx.Direction backRightMotorDirection = DcMotorEx.Direction.REVERSE;
             public static String winchMotorName = "winchMotor";
             public static DcMotorEx.Direction winchMotorDirection = DcMotorEx.Direction.REVERSE;
-            public static double moveVelo = 0.7;
+            public static double moveVelo = 1.0;
             public static int winchUpPos = 8500;
             public static int winchDownPos = 0;
             public static double winchVelo = 1.0;
@@ -27,15 +27,15 @@ public class Config {
             public static double armMoveVelo = 0.4;
             public static int armStoredPos = 0;
             public static int armUpPos = 750;
-            public static int armLowPos = 257;//imp
+            public static int armLowPos = 257;
             public static int armDownPos = 330;
             public static String elbowMotorName = "elbowMotor";
             public static DcMotorSimple.Direction elbowMotorDirection = DcMotorSimple.Direction.FORWARD;
             public static double elbowMoveVelo = 0.2;
             public static int elbowStoredPos = 0;
             public static int elbowDownPos = 560;
-            public static int elbowLowPos = 375;//imp
-            public static int elbowUpPos = 440; //to imp
+            public static int elbowLowPos = 375;
+            public static int elbowUpPos = 440;
             
             ////////////////////////////////////////////////////////////
             
@@ -75,7 +75,9 @@ public class Config {
             public static String whiskerLName = "leftWhisker";
             public static String whiskerRName = "rightWhisker";
             public static String distanceName = "distance";
-            public static double minDistance = 4.0; //6.5
+            public static double minDistance = 4.0;
+            public static String gyroName = "gyro";
+
 
         }
 
@@ -96,10 +98,11 @@ public class Config {
             public static int centerLeft = 230;
             public static int centerRight = 430;
         }
-
-        public static class Motor {
-
-
+        public static boolean withinErr(int input, int val, int buffer){
+            if(val-buffer < input && input < val+buffer)
+                return true;
+            return false;
         }
+        public static int degrees = 0;
     }
 }
