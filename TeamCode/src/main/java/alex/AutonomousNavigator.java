@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.BlueAutonomousBackdrop;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -57,6 +58,14 @@ public class AutonomousNavigator {
 
     public void rotate(int degrees, GyroSensor gyro, DcMotorEx frontL, DcMotorEx frontR, DcMotorEx backL, DcMotorEx backR){
         addInstruction(new Instruction(Instruction.Code.Rotate, new Object[]{degrees, gyro, frontL, frontR, backL, backR}));
+    }
+
+    public void goToAprilTag(AprilTagProcessor aprilTag,int id, Double XYZ[], DcMotorEx frontL, DcMotorEx frontR, DcMotorEx backL, DcMotorEx backR){
+        addInstruction(new Instruction(Instruction.Code.GoToAprilTag, new Object[]{aprilTag, id, XYZ, frontL, frontR, backL, backR}));
+    }
+
+    public void rotateToAprilTag(AprilTagProcessor aprilTag,int id, int angle, GyroSensor gyro, DcMotorEx frontL, DcMotorEx frontR, DcMotorEx backL, DcMotorEx backR){
+        addInstruction(new Instruction(Instruction.Code.RotateToAprilTag, new Object[]{aprilTag, id, angle, gyro, frontL, frontR, backL, backR}));
     }
 
     public void custom(Runnable code){
